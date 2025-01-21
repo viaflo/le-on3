@@ -28,7 +28,7 @@
 
             try {
                 // Charger le PDF existant
-                const url = 'LECON1.pdf'; // Remplace par le chemin de ton fichier PDF existant
+                const url = 'https://raw.githubusercontent.com/viaflo/le-on3/main/LECON1.pdf'; // Remplace par le chemin de ton fichier PDF existant
                 const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
 
                 // Charger le document PDF avec pdf-lib
