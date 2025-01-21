@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajout de Filigrane sur PDF</title>
+    
+    <!-- Intégration de la bibliothèque pdf-lib via le CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+</head>
+<body>
+    <h1 style="text-align: center;">Téléchargez votre fichier PDF personnalisé</h1>
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <label for="nomEtudiant">Entrez votre nom :</label>
+        <input type="text" id="nomEtudiant" placeholder="Jean Dupont" style="margin: 0 10px;">
+        <button onclick="ajouterFiligrane()">Télécharger le PDF</button>
+    </div>
+
+    <script>
+        async function ajouterFiligrane() {
+            const nom = document.getElementById('nomEtudiant').value;
+
+            if (!nom) {
+                alert('Veuillez entrer votre nom avant de télécharger.');
+                return;
+            }
+
+            try {
+                // Charger le PDF existant
+                const url = 'LECON1.pdf'; // Remplace par le chemin de ton fichier PDF existant
+                const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
+
+                // Charger le document PDF avec pdf-lib
+                const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+                const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+
+                // Ajouter le filigrane sur chaque page
+                const pages = pdfDoc.getPages();
+                const text = `Document réservé à ${nom}`;
+
+                for (const page of pages) {
+                    const { width, height } = page.getSize();
+                    page.drawText(text, {
+                        x: width / 4,
+                        y: height / 2,
+                        size: 24,
+                        font,
+                        color: PDFLib.rgb(0.5, 0.5, 0.5), // Filigrane gris
+                        rotate: PDFLib.degrees(45), // Rotation
+                        opacity: 0.3, // Transparence
+                    });
+                }
+
+                // Générer le PDF avec le filigrane
+                const pdfBytes = await pdfDoc.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `Document_${nom}.pdf`;
+                link.click();
+            } catch (error) {
+                console.error("Erreur lors du traitement du PDF :", error);
+                alert("Une erreur s'est produite lors de la génération du PDF.");
+            }
+        }
+    </script>
+</body>
+</html>
